@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login Form</title>
-    <!-- Include Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body style="background-color: #f8f9fa;">
-
 <div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
     <div class="col-md-6">
         <div class="card">
@@ -16,7 +14,6 @@
                 <h4 class="text-center">Login</h4>
             </div>
             <div class="card-body">
-                <!-- Login Form -->
                 <form>
                     <div class="mb-3">
                         <label for="username" class="form-label">Gebruikersnaam</label>
@@ -48,13 +45,10 @@
 				<div class="text-center mt-3">
                     <p>Heb je nog geen account registeer dan<a href="register.php" class="text-decoration-none"> hier</a></p>
                 </div>
-                <!-- End Login Form -->
             </div>
         </div>
     </div>
 </div>
-
-<!-- Include Bootstrap JS and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
