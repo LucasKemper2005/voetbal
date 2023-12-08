@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+// Inclusie van de databaseverbinding
+include 'connect.php';
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +22,7 @@
                 <h4 class="text-center">Login</h4>
             </div>
             <div class="card-body">
-                <form>
+                <form method="post" action="index.php" >
                     <div class="mb-3">
                         <label for="username" class="form-label">Gebruikersnaam</label>
                         <input type="text" class="form-control" id="username" name="username" required>
@@ -38,6 +46,49 @@
                             </label>
                         </div>
                     </div>
+					<?php
+					if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Ontvang de inloggegevens
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+    $role = $_POST["role"];
+
+    try {
+        // Zoek de gebruiker in de database
+        $sql = "SELECT id, password, role FROM users WHERE username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$username]);
+
+        // Controleer of de gebruiker bestaat en het wachtwoord overeenkomt
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $hashedPassword = $row["password"];
+
+            if (password_verify($password, $hashedPassword) && $role == $row["role"]) {
+                // Inloggen geslaagd
+                $_SESSION["user_id"] = $row["id"];
+                $_SESSION["username"] = $username;
+                $_SESSION["role"] = $row["role"];
+
+                // Stuur de gebruiker door naar het dashboard op basis van de rol
+                header("Location: dashboard.php");
+                exit();
+            } else {
+                // Ongeldige inloggegevens
+                echo "Ongeldige inloggegevens probeer <a href='index.php'>opnieuw</a>.";
+            }
+        } else {
+            // Gebruiker niet gevonden
+            echo "Gebruiker niet gevonden probeer <a href='index.php'>opnieuw</a>.";
+        }
+    } catch (PDOException $e) {
+        echo "Fout bij inloggen: " . $e->getMessage();
+    }
+
+    // Sluit de databaseverbinding
+    $conn = null;
+}
+					?>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary" style="background-color: #007bff;">Login</button>
                     </div>
