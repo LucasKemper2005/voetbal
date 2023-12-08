@@ -47,47 +47,57 @@ include 'connect.php';
                         </div>
                     </div>
 					<?php
-					if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ontvang de inloggegevens
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    $role = $_POST["role"];
+                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                        // Ontvang de inloggegevens
+                        $username = $_POST["username"];
+                        $password = $_POST["password"];
+                        $role = $_POST["role"];
 
-    try {
-        // Zoek de gebruiker in de database
-        $sql = "SELECT id, password, role FROM users WHERE username = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$username]);
+                        try {
+                            // Zoek de gebruiker in de database
+                            $sql = "SELECT id, password, role FROM users WHERE username = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->execute([$username]);
 
-        // Controleer of de gebruiker bestaat en het wachtwoord overeenkomt
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $hashedPassword = $row["password"];
+                            // Controleer of de gebruiker bestaat en het wachtwoord overeenkomt
+                            if ($stmt->rowCount() > 0) {
+                                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                                $hashedPassword = $row["password"];
 
-            if (password_verify($password, $hashedPassword) && $role == $row["role"]) {
-                // Inloggen geslaagd
-                $_SESSION["user_id"] = $row["id"];
-                $_SESSION["username"] = $username;
-                $_SESSION["role"] = $row["role"];
+                                if (password_verify($password, $hashedPassword)) {
+                                    // Controleer de rol
+                                    if ($role == $row["role"]) {
+                                        // Inloggen geslaagd
+                                        $_SESSION["user_id"] = $row["id"];
+                                        $_SESSION["username"] = $username;
+                                        $_SESSION["role"] = $row["role"];
 
-                // Stuur de gebruiker door naar het dashboard op basis van de rol
-                header("Location: dashboard.php");
-                exit();
-            } else {
-                // Ongeldige inloggegevens
-                echo "Ongeldige inloggegevens probeer <a href='index.php'>opnieuw</a>.";
-            }
-        } else {
-            // Gebruiker niet gevonden
-            echo "Gebruiker niet gevonden probeer <a href='index.php'>opnieuw</a>.";
-        }
-    } catch (PDOException $e) {
-        echo "Fout bij inloggen: " . $e->getMessage();
-    }
+                                        // Stuur admin naar admin-dashboard en gebruiker naar user-dashboard
+                                        if ($role == "admin") {
+                                            header("Location: admin-dashboard.php");
+                                        } else {
+                                            header("Location: user-dashboard.php");
+                                        }
+                                        exit();
+                                    } else {
+                                        // Ongeldige rol
+                                        echo "Ongeldige rol. Probeer <a href='index.php'>opnieuw</a>.";
+                                    }
+                                } else {
+                                    // Ongeldige inloggegevens
+                                    echo "Ongeldige inloggegevens. Probeer <a href='index.php'>opnieuw</a>.";
+                                }
+                            } else {
+                                // Gebruiker niet gevonden
+                                echo "Gebruiker niet gevonden. Probeer <a href='index.php'>opnieuw</a>.";
+                            }
+                        } catch (PDOException $e) {
+                            echo "Fout bij inloggen: " . $e->getMessage();
+                        }
 
-    // Sluit de databaseverbinding
-    $conn = null;
-}
+                        // Sluit de databaseverbinding
+                        $conn = null;
+                    }
 					?>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary" style="background-color: #007bff;">Login</button>
